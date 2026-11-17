@@ -2,184 +2,562 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lebanon Unlocked – Quiz Game</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Lebanon Unlocked – The Ultimate Lebanese Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{font-family:Montserrat,system-ui,sans-serif;background:#46178f;color:#fff;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
-body::before{content:"";position:fixed;inset:0;background:
- radial-gradient(circle at 15% 20%,rgba(255,255,255,.08) 0 120px,transparent 121px),
- radial-gradient(circle at 85% 75%,rgba(255,255,255,.06) 0 180px,transparent 181px),
- radial-gradient(circle at 70% 10%,rgba(255,255,255,.05) 0 80px,transparent 81px);pointer-events:none}
-.screen{position:relative;min-height:100vh;display:none;flex-direction:column;padding:16px;gap:14px}
-.screen.on{display:flex}
+body{font-family:Montserrat,system-ui,sans-serif;background:#46178f;color:#fff;overflow-x:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
+#bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+#bg i{position:absolute;opacity:.07;animation:float linear infinite}
+@keyframes float{from{transform:translateY(110vh) rotate(0)}to{transform:translateY(-20vh) rotate(360deg)}}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:20}
+.screen{position:relative;z-index:1;min-height:100vh;display:none;flex-direction:column;padding:16px;gap:14px;max-width:1100px;margin:0 auto}
+.screen.on{display:flex;animation:fade .3s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
 .center{align-items:center;justify-content:center;text-align:center}
-.logo{font-weight:900;font-size:clamp(40px,9vw,80px);line-height:.95;letter-spacing:-1px;text-shadow:0 6px 0 rgba(0,0,0,.25)}
-.logo span{color:#26890c;display:block}
-.sub{opacity:.85;font-weight:600}
-.cedar{width:80px;height:80px}
-.card{background:#fff;color:#333;border-radius:10px;padding:22px;width:min(420px,92vw);box-shadow:0 6px 0 rgba(0,0,0,.25);display:flex;flex-direction:column;gap:12px}
-input{font:inherit;font-weight:700;font-size:20px;padding:14px;border:3px solid #ddd;border-radius:6px;text-align:center;outline:none}
+.logo{font-weight:900;font-size:clamp(42px,9vw,84px);line-height:.92;letter-spacing:-1px;text-shadow:0 6px 0 rgba(0,0,0,.25)}
+.logo span{color:#2fd35a;display:block}
+.tag{opacity:.9;font-weight:700}
+.card{background:#fff;color:#333;border-radius:12px;padding:20px;width:min(560px,94vw);box-shadow:0 6px 0 rgba(0,0,0,.25);display:flex;flex-direction:column;gap:12px}
+.card h3{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#46178f;text-align:left}
+input{font:inherit;font-weight:800;font-size:20px;padding:14px;border:3px solid #ddd;border-radius:8px;text-align:center;outline:none;width:100%}
 input:focus{border-color:#46178f}
-.btn{font:inherit;font-weight:800;font-size:20px;padding:14px 22px;border:0;border-radius:6px;background:#333;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.35);transition:transform .08s}
+.btn{font:inherit;font-weight:800;font-size:19px;padding:14px 22px;border:0;border-radius:8px;background:#333;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.35);transition:transform .08s}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
 .btn.light{background:#fff;color:#46178f}
-.top{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+.btn.green{background:#26890c}
+.btn.ghost{background:rgba(0,0,0,.25)}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mode{border:3px solid #eee;border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;font-weight:800;color:#333;background:#fafafa}
+.mode b{display:block;font-size:26px}
+.mode small{display:block;font-weight:600;color:#888;font-size:11px;margin-top:2px}
+.mode.sel{border-color:#46178f;background:#f1eaff}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chip{border:2px solid #ddd;border-radius:30px;padding:7px 12px;font-weight:700;font-size:14px;cursor:pointer;background:#fff;color:#444}
+.chip.sel{background:#46178f;border-color:#46178f;color:#fff}
+.stats{font-size:13px;font-weight:600;opacity:.85}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:800;gap:8px;flex-wrap:wrap}
 .pill{background:rgba(0,0,0,.25);padding:8px 14px;border-radius:30px;font-size:15px}
-.qbox{background:#fff;color:#222;border-radius:8px;padding:20px 16px;text-align:center;font-weight:800;font-size:clamp(19px,3.4vw,32px);box-shadow:0 4px 0 rgba(0,0,0,.2)}
-.qbox .fr{display:block;font-weight:600;font-size:.72em;color:#666;margin-top:6px}
-.mid{flex:1;display:flex;align-items:center;justify-content:center;gap:24px;min-height:110px}
-.timer{width:90px;height:90px;border-radius:50%;background:#864cbf;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.qbox{background:#fff;color:#222;border-radius:10px;padding:20px 16px;text-align:center;font-weight:800;font-size:clamp(19px,3.4vw,32px);box-shadow:0 4px 0 rgba(0,0,0,.2);position:relative}
+.qbox .cat{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#864cbf;color:#fff;font-size:12px;padding:4px 12px;border-radius:20px;white-space:nowrap}
+.qbox .emo{display:block;font-size:clamp(44px,8vw,70px);margin-bottom:6px}
+.mid{flex:1;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:110px}
+.timer{width:92px;height:92px;border-radius:50%;background:#864cbf;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.25);flex:none}
 .timer.low{background:#e21b3c;animation:pulse .5s infinite alternate}
+.timer.frozen{background:#1368ce}
 @keyframes pulse{to{transform:scale(1.08)}}
-.flag{height:70px;border-radius:4px;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.powers{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pw{font:inherit;font-weight:800;font-size:14px;border:0;border-radius:30px;padding:10px 14px;background:#fff;color:#46178f;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.pw:disabled{opacity:.3;cursor:default}
+.pw.active{background:#ffd23f}
 .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ans{position:relative;border:0;border-radius:6px;min-height:90px;padding:14px 14px 14px 64px;color:#fff;font:inherit;font-weight:800;font-size:clamp(15px,2.4vw,22px);text-align:left;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.3);transition:opacity .25s,transform .1s}
+.ans{position:relative;border:0;border-radius:8px;min-height:92px;padding:14px 46px 14px 64px;color:#fff;font:inherit;font-weight:800;font-size:clamp(15px,2.4vw,22px);text-align:left;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.3);transition:opacity .25s,transform .1s;animation:in .3s backwards}
+.ans:nth-child(2){animation-delay:.05s}.ans:nth-child(3){animation-delay:.1s}.ans:nth-child(4){animation-delay:.15s}
+@keyframes in{from{opacity:0;transform:scale(.9)}}
 .ans:active{transform:translateY(3px)}
 .ans svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:34px;height:34px}
-.a0{background:#e21b3c}.a1{background:#1368ce}.a2{background:#d89e00}.a3{background:#26890c}
-.ans.dim{opacity:.25}
+.c0{background:#e21b3c}.c1{background:#1368ce}.c2{background:#d89e00}.c3{background:#26890c}
+.answers.tf .ans{min-height:150px;font-size:clamp(22px,4vw,34px)}
+.ans.dim{opacity:.22}
+.ans.gone{visibility:hidden}
 .ans.right::after{content:"✔";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:28px}
 .ans.wrong::after{content:"✖";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:28px}
 .ans:disabled{cursor:default}
 .bar{height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden}
-.bar i{display:block;height:100%;background:#fff;width:100%;transition:width .1s linear}
-#feedback{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;z-index:5;padding:20px}
-#feedback.on{display:flex;animation:pop .25s}
-#feedback.ok{background:#26890c}#feedback.no{background:#e21b3c}
-@keyframes pop{from{opacity:0;transform:scale(1.1)}}
-#feedback h2{font-size:clamp(36px,8vw,64px);font-weight:900}
-#feedback .pts{background:rgba(0,0,0,.25);padding:10px 22px;border-radius:6px;font-size:26px;font-weight:900}
-#feedback .fact{max-width:520px;font-weight:600;opacity:.95}
-.big{font-size:clamp(50px,12vw,96px);font-weight:900;text-shadow:0 6px 0 rgba(0,0,0,.25)}
-.podium{display:flex;align-items:flex-end;gap:8px;height:150px}
-.podium div{width:70px;background:#fff;color:#46178f;border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-weight:900;font-size:24px}
-.review{width:min(620px,94vw);display:flex;flex-direction:column;gap:6px;text-align:left;max-height:40vh;overflow:auto}
+.bar i{display:block;height:100%;background:#fff;width:100%}
+#fb{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;z-index:10;padding:20px}
+#fb.on{display:flex;animation:pop .25s}
+#fb.ok{background:#26890c}#fb.no{background:#e21b3c}
+@keyframes pop{from{opacity:0;transform:scale(1.08)}}
+#fb h2{font-size:clamp(36px,8vw,64px);font-weight:900}
+#fb .pts{background:rgba(0,0,0,.25);padding:10px 22px;border-radius:8px;font-size:24px;font-weight:900}
+#fb .fact{max-width:560px;font-weight:600;opacity:.95}
+#fb .rank{font-weight:800;background:#fff;color:#333;padding:8px 18px;border-radius:30px}
+.big{font-size:clamp(54px,12vw,100px);font-weight:900;text-shadow:0 6px 0 rgba(0,0,0,.25)}
+.count{font-size:130px;font-weight:900;animation:pop .4s}
+.board{width:min(560px,94vw);display:flex;flex-direction:column;gap:6px}
+.row{display:flex;align-items:center;gap:10px;background:#fff;color:#333;border-radius:8px;padding:10px 14px;font-weight:800;box-shadow:0 3px 0 rgba(0,0,0,.2);animation:in .3s backwards}
+.row .r{width:30px;text-align:center;font-size:18px}
+.row .n{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .s{color:#46178f}
+.row small{color:#999;font-weight:600;font-size:11px;display:block}
+.row.me{background:#ffd23f}
+.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.review{width:min(680px,94vw);display:flex;flex-direction:column;gap:6px;text-align:left;max-height:34vh;overflow:auto}
 .review div{background:rgba(0,0,0,.2);padding:8px 12px;border-radius:6px;font-size:14px;font-weight:600}
-.review b{margin-right:6px}
-.mute{position:fixed;bottom:12px;right:12px;z-index:9;background:rgba(0,0,0,.3);border:0;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;cursor:pointer}
-.count{font-size:120px;font-weight:900;animation:pop .4s}
-@media(max-width:520px){.answers{grid-template-columns:1fr}.ans{min-height:64px}.mid{min-height:80px}}
+.badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.badge{background:#ffd23f;color:#333;font-weight:800;padding:6px 12px;border-radius:20px;font-size:14px;animation:pop .4s backwards}
+.fab{position:fixed;bottom:12px;right:12px;z-index:30;background:rgba(0,0,0,.3);border:0;color:#fff;width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer}
+.row2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+@media(max-width:560px){.answers{grid-template-columns:1fr}.ans{min-height:62px}.answers.tf{grid-template-columns:1fr 1fr}.answers.tf .ans{min-height:110px;padding:14px;text-align:center}.answers.tf .ans svg{display:none}.mid{min-height:80px}.timer{width:72px;height:72px;font-size:32px}}
 </style>
 </head>
 <body>
+<div id="bg"></div>
+<canvas id="confetti"></canvas>
 
-<!-- START -->
-<section id="s-start" class="screen center on">
-  <svg class="cedar" viewBox="0 0 100 100"><path fill="#26890c" d="M50 8 30 34h10L22 54h12L12 76h76L66 54h12L60 34h10z"/><rect x="45" y="76" width="10" height="16" fill="#7a4a1d"/></svg>
+<!-- HOME -->
+<section id="s-home" class="screen center on">
   <div class="logo">LEBANON<span>UNLOCKED!</span></div>
-  <p class="sub">The big Lebanon quiz • Le grand quiz du Liban</p>
+  <p class="tag">🇱🇧 The ultimate Lebanese quiz — yalla, prove you're 100% Lebnene</p>
   <div class="card">
-    <input id="name" maxlength="15" placeholder="Nickname / Pseudo" autocomplete="off">
-    <button class="btn" id="go">Play! / Jouer !</button>
-    <small style="color:#888;font-weight:600">16 questions • 20 s each • faster = more points</small>
+    <input id="name" maxlength="16" placeholder="Your nickname" autocomplete="off">
+    <h3>Game mode</h3>
+    <div class="modes" id="modes"></div>
+    <h3>Category</h3>
+    <div class="chips" id="cats"></div>
+    <button class="btn green" id="go">YALLA! ▶</button>
   </div>
+  <div class="row2">
+    <button class="btn light" id="hof">🏆 Hall of Fame</button>
+  </div>
+  <p class="stats" id="stats"></p>
 </section>
 
 <!-- COUNTDOWN -->
-<section id="s-count" class="screen center"><p class="sub" id="cTitle"></p><div class="count" id="cNum">3</div></section>
+<section id="s-count" class="screen center"><p class="tag" id="cTitle"></p><div class="count" id="cNum">3</div></section>
 
 <!-- QUESTION -->
 <section id="s-q" class="screen">
-  <div class="top"><span class="pill" id="qNum">1 / 16</span><span class="pill" id="streak"></span><span class="pill" id="score">0</span></div>
+  <div class="top"><span class="pill" id="qNum"></span><span class="pill" id="streak"></span><span class="pill" id="lives"></span><span class="pill" id="score">0</span></div>
   <div class="qbox" id="qText"></div>
   <div class="bar"><i id="bar"></i></div>
-  <div class="mid"><div class="timer" id="timer">20</div><svg class="flag" viewBox="0 0 150 100"><rect width="150" height="100" fill="#fff"/><rect width="150" height="25" fill="#ed1c24"/><rect y="75" width="150" height="25" fill="#ed1c24"/><path fill="#00a651" d="M75 30 64 46h6L58 58h8L52 70h46L84 58h8L80 46h6z"/></svg></div>
+  <div class="mid">
+    <div class="timer" id="timer">20</div>
+    <div class="powers">
+      <button class="pw" id="pw-half" title="Remove two wrong answers">✂️ 50/50</button>
+      <button class="pw" id="pw-double" title="Double points on this question">✖️2 Double</button>
+      <button class="pw" id="pw-freeze" title="Freeze the timer">❄️ Freeze</button>
+    </div>
+  </div>
   <div class="answers" id="answers"></div>
 </section>
 
 <!-- END -->
 <section id="s-end" class="screen center">
-  <p class="sub">Final score • Score final</p>
+  <p class="tag" id="endTitle">Final score</p>
   <div class="big" id="final">0</div>
   <p style="font-weight:800;font-size:20px" id="verdict"></p>
-  <div class="podium"><div style="height:60%">🥈</div><div style="height:100%" id="medal">🥇</div><div style="height:40%">🥉</div></div>
+  <div class="badges" id="badges"></div>
+  <div class="board" id="endBoard"></div>
   <div class="review" id="review"></div>
-  <button class="btn light" id="again">Play again / Rejouer</button>
+  <div class="row2"><button class="btn green" id="again">Play again 🔁</button><button class="btn light" id="home">Home</button></div>
 </section>
 
-<div id="feedback"><h2 id="fbTitle"></h2><div class="pts" id="fbPts"></div><p class="fact" id="fbFact"></p><p class="sub" id="fbStreak"></p></div>
-<button class="mute" id="mute" title="Sound">🔊</button>
+<!-- HALL OF FAME -->
+<section id="s-hof" class="screen center">
+  <div class="logo" style="font-size:clamp(34px,7vw,60px)">🏆 HALL<span>OF FAME</span></div>
+  <div class="tabs" id="hofTabs"></div>
+  <div class="board" id="hofBoard"></div>
+  <div class="row2"><button class="btn light" id="hofBack">Back</button><button class="btn ghost" id="hofReset">Reset scores</button></div>
+  <p class="stats" id="resetMsg"></p>
+</section>
+
+<div id="fb"><h2 id="fbTitle"></h2><div class="pts" id="fbPts"></div><p class="fact" id="fbFact"></p><div class="rank" id="fbRank"></div></div>
+<button class="fab" id="mute" title="Sound">🔊</button>
 
 <script>
-const Q=[
-["What is the capital of Lebanon?","Quelle est la capitale du Liban ?",["Tripoli","Beirut / Beyrouth","Byblos","Sidon / Saïda"],1,"Beirut is the capital, on the Mediterranean coast. • Beyrouth est la capitale."],
-["Which sea borders Lebanon?","Quelle mer borde le Liban ?",["Black Sea / Mer Noire","Red Sea / Mer Rouge","Mediterranean / Méditerranée","North Sea / Mer du Nord"],2,"Lebanon lies on the eastern coast of the Mediterranean. • À l'est de la Méditerranée."],
-["Which country borders Lebanon?","Quel pays est voisin du Liban ?",["Syria / Syrie","Egypt / Égypte","Turkey / Turquie","Jordan / Jordanie"],0,"Lebanon's neighbours are Syria and Israel. • Voisins : la Syrie et Israël."],
-["Which tree is on the Lebanese flag?","Quel arbre figure sur le drapeau ?",["Cedar / Cèdre","Palm / Palmier","Olive / Olivier","Oak / Chêne"],0,"The cedar is Lebanon's national symbol. • Le cèdre est le symbole national."],
-["What colours are the flag's stripes?","De quelles couleurs sont les bandes du drapeau ?",["Red-white-red / Rouge-blanc-rouge","Blue-white-blue / Bleu-blanc-bleu","Green-white-green / Vert-blanc-vert","Red-green-red / Rouge-vert-rouge"],0,"Red, white and red, with a green cedar. • Rouge, blanc, rouge avec un cèdre vert."],
-["What is Lebanon's official currency?","Quelle est la monnaie officielle ?",["Euro","Lebanese pound / Livre libanaise","Yen","Dinar"],1,"The Lebanese pound. • La livre libanaise."],
-["What is dabke?","Qu'est-ce que la dabké ?",["A dance / Une danse","A dessert / Un dessert","A mountain / Une montagne","A boat / Un bateau"],0,"Dabke is a lively traditional group dance. • Une danse collective entraînante."],
-["Which dish is Lebanese?","Quel plat est libanais ?",["Sushi","Tabbouleh / Taboulé","Paella","Fish and chips"],1,"Tabbouleh is a fresh parsley salad. • Une salade fraîche au persil."],
-["Hummus is made from…","Le houmous est fait de…",["Chickpeas & tahini / Pois chiches et tahini","Lentils / Lentilles","Rice / Riz","Potatoes / Pommes de terre"],0,"Hummus is a chickpea and tahini dip. • Une purée de pois chiches et tahini."],
-["Manakish is often topped with…","La manakish est souvent garnie de…",["Chocolate / Chocolat","Honey / Miel","Za'atar","Banana / Banane"],2,"Manakish is a flatbread, often with za'atar. • Une galette, souvent au za'atar."],
-["Which language is official in Lebanon?","Quelle langue est officielle au Liban ?",["Arabic / Arabe","French / Français","English / Anglais","Spanish / Espagnol"],0,"Arabic is official; French and English are widely used too. • L'arabe est officiel."],
-["How do you say hello in Arabic?","Comment dit-on bonjour en arabe ?",["Hola","Ciao","Marhaba","Hallo"],2,"Marhaba! • Bonjour ! • Hello!"],
-["Baalbek is famous for its…","Baalbek est célèbre pour ses…",["Pyramids / Pyramides","Roman temples / Temples romains","Canals / Canaux","Castles / Châteaux"],1,"Baalbek has monumental Roman temples. • Des temples romains monumentaux."],
-["Byblos is linked to which ancient people?","Byblos est liée à quel peuple ancien ?",["Vikings","Aztecs / Aztèques","Phoenicians / Phéniciens","Mayans / Mayas"],2,"Byblos (Jbeil) is an ancient Phoenician port city. • Une ville côtière phénicienne."],
-["What can you explore at Jeita?","Que peut-on explorer à Jeita ?",["A glacier / Un glacier","Caves / Grottes","A volcano / Un volcan","A desert / Un désert"],1,"Jeita Grotto is a spectacular cave system. • Des grottes spectaculaires."],
-["The Cedars of God are…","Les Cèdres de Dieu sont…",["A lake / Un lac","A beach / Une plage","A castle / Un château","A cedar forest / Une forêt de cèdres"],3,"An iconic cedar forest. • Une forêt de cèdres emblématique."]
+/* ================= QUESTION BANK =================
+   MC: {c, q, a:correct, w:[wrong answers], e?:emoji, f?:fact}
+   TF: {c, q, t:true|false, f?:fact}
+*/
+const BANK=[
+/* ---------- FOOD ---------- */
+{c:"food",q:"What's the main ingredient in tabbouleh?",a:"Parsley",w:["Mint","Lettuce","Spinach","Coriander","Cabbage"],e:"🥗"},
+{c:"food",q:"Tabbouleh uses which grain?",a:"Bulgur",w:["Rice","Couscous","Quinoa","Oats","Freekeh"]},
+{c:"food",q:"Fattoush gets its crunch from…",a:"Toasted or fried bread",w:["Peanuts","Chickpeas","Croutons of cheese","Corn flakes","Sunflower seeds"]},
+{c:"food",q:"Toum is a sauce made mainly from…",a:"Garlic",w:["Onion","Yogurt","Tahini","Mayonnaise","Lemon peel"],e:"🧄"},
+{c:"food",q:"Mjaddara is lentils cooked with…",a:"Rice or bulgur & fried onions",w:["Pasta & cheese","Meat & tomato","Potatoes & eggs","Chickpeas & garlic"]},
+{c:"food",q:"How is kibbeh nayyeh served?",a:"Raw",w:["Fried","Grilled","Baked","Boiled"]},
+{c:"food",q:"Labneh is made from…",a:"Strained yogurt",w:["Chickpeas","Sesame","Eggplant","Lentils","Milk powder & lemon"]},
+{c:"food",q:"Baba ghanouj is made with…",a:"Eggplant",w:["Zucchini","Potato","Pumpkin","Carrot","Avocado"],e:"🍆"},
+{c:"food",q:"Knefeh is traditionally eaten inside a…",a:"Sesame ka'ak",w:["Pita","Croissant","Manoushe","Cone","Tortilla"],e:"🧀"},
+{c:"food",q:"Ma'moul cookies are usually stuffed with…",a:"Dates, pistachios or walnuts",w:["Chocolate","Strawberry jam","Cream cheese","Caramel","Nutella"]},
+{c:"food",q:"Meghli is served to celebrate…",a:"A new baby",w:["A wedding","Christmas","A graduation","A new house","A birthday"],f:"Meghli is a spiced rice pudding topped with nuts, made when a baby is born."},
+{c:"food",q:"On Eid il-Burbara, people eat…",a:"Amhiyye (boiled wheat)",w:["Pancakes","Shawarma","Mjaddara","Kibbeh","Fattoush"]},
+{c:"food",q:"Sayadieh is…",a:"Fish with spiced rice",w:["Chicken with rice","Lamb stew","Lentil soup","Stuffed vine leaves","Meat pies"],e:"🐟"},
+{c:"food",q:"Warak enab is…",a:"Stuffed vine leaves",w:["Stuffed zucchini","Stuffed cabbage","Eggplant salad","Stuffed peppers","Spinach pies"],e:"🍃"},
+{c:"food",q:"Kousa mahshi is…",a:"Stuffed zucchini",w:["Stuffed vine leaves","Grilled eggplant","Potato stew","Stuffed onions","Okra stew"]},
+{c:"food",q:"Lebanese coffee is often flavored with…",a:"Cardamom",w:["Cinnamon","Vanilla","Chocolate","Mint","Caramel"],e:"☕"},
+{c:"food",q:"Jallab is a drink made with…",a:"Date molasses & rose water",w:["Mint & lemon","Orange & ginger","Milk & cocoa","Tea & honey","Apple & cinnamon"]},
+{c:"food",q:"Ayran is a…",a:"Salty yogurt drink",w:["Lemonade","Mint tea","Carob drink","Almond milk","Soda"]},
+{c:"food",q:"Lahm bi ajeen is topped with…",a:"Minced meat",w:["Cheese","Za'atar","Kishk","Egg","Spinach"]},
+{c:"food",q:"Kishk is made from…",a:"Fermented yogurt & bulgur",w:["Rice & milk","Chickpeas","Lentils & corn","Flour & eggs","Dates & nuts"]},
+{c:"food",q:"Which town is famous for sfiha (meat pies)?",a:"Baalbek",w:["Tripoli","Saida","Jounieh","Byblos","Batroun"]},
+{c:"food",q:"Tripoli is famous for its…",a:"Sweets",w:["Ski slopes","Wine","Lemonade","Waterfalls","Cheese"],e:"🍬"},
+{c:"food",q:"Batroun is famous for its…",a:"Lemonade",w:["Coffee","Ayran","Hot chocolate","Mango juice","Jallab"],e:"🍋"},
+{c:"food",q:"Chicken shawarma usually comes with…",a:"Toum (garlic sauce)",w:["Ketchup","Cheese sauce","Honey mustard","BBQ sauce","Ranch"],e:"🌯"},
+{c:"food",q:"Falafel is made from…",a:"Chickpeas & fava beans",w:["Lentils","Potatoes","Rice","Eggplant","Corn"],e:"🧆"},
+{c:"food",q:"A 'mezza' is…",a:"Many small dishes to share",w:["A dessert","A drink","A soup","A type of bread","A spice"]},
+{c:"food",q:"Foul (fool) is made from…",a:"Fava beans",w:["Lentils","Rice","Corn","Peas","Bulgur"]},
+{c:"food",q:"Mouhalabieh is a…",a:"Milk pudding",w:["Meat pie","Rice dish","Salad","Juice","Cookie"],e:"🍮"},
+{c:"food",q:"Shish taouk is…",a:"Marinated chicken skewers",w:["Beef kebab","Lamb chops","Grilled fish","Liver","Meatballs"],e:"🍢"},
+{c:"food",q:"Riz a djej means…",a:"Rice with chicken",w:["Rice with fish","Rice pudding","Rice with lentils","Fried rice","Rice with yogurt"]},
+{c:"food",q:"Moghrabieh is made with…",a:"Pearl couscous",w:["Lentils","Bulgur","Pasta","Rice","Quinoa"]},
+{c:"food",q:"Fatteh is made with toasted bread, chickpeas and…",a:"Yogurt",w:["Chocolate","Tomato sauce","Cheese","Honey","Cream"]},
+{c:"food",q:"Sfouf cake gets its yellow colour from…",a:"Turmeric",w:["Saffron","Egg yolk","Mango","Lemon","Corn"],e:"🍰"},
+{c:"food",q:"Namoura is made with…",a:"Semolina",w:["Rice","Chocolate","Oats","Cornflakes","Puff pastry"]},
+{c:"food",q:"Atayef are…",a:"Small stuffed pancakes",w:["Fried dough balls","Rice cookies","Date bars","Sesame bread","Milk pudding"],f:"Atayef are a Ramadan favourite, stuffed with ashta or walnuts."},
+{c:"food",q:"Pink pickled turnips get their colour from…",a:"Beetroot",w:["Raspberries","Tomatoes","Red cabbage","Pomegranate","Food colouring"]},
+{c:"food",q:"Za'atar mix contains thyme, sumac and…",a:"Sesame",w:["Sugar","Cinnamon","Cumin","Paprika","Cocoa"],e:"🌿"},
+{c:"food",q:"Hummus contains tahini, which is made from…",a:"Sesame",w:["Peanuts","Almonds","Sunflower","Pistachio","Chickpeas"]},
+{c:"food",q:"Ashta is…",a:"Clotted cream",w:["Cheese","Butter","Ice cream","Yogurt","Custard powder"]},
+{c:"food",q:"Debs remmen is molasses made from…",a:"Pomegranate",w:["Dates","Grapes","Carob","Figs","Apples"]},
+{c:"food",q:"Fresh 'mana'eesh' are baked in a…",a:"Furn (bakery)",w:["Microwave","Frying pan","Freezer","Toaster","Grill"]},
+{c:"food",q:"Kibbeh is mainly made of bulgur and…",a:"Minced meat",w:["Rice","Fish only","Cheese","Chicken skin","Potatoes"]},
+{c:"food",q:"Freekeh is…",a:"Roasted green wheat",w:["Brown rice","Lentils","Barley soup","Corn","Oats"]},
+{c:"food",q:"'Sahlab' is a…",a:"Hot milky drink",w:["Cold juice","Salad","Pastry","Soup","Bread"]},
+{c:"food",q:"🐟 + 🍚 + 🧅 = ?",a:"Sayadieh",w:["Mjaddara","Fatteh","Kabseh","Moghrabieh"],e:"🐟🍚"},
+{c:"food",q:"🥖 + 🥬 + 🍅 + 🍋 = ?",a:"Fattoush",w:["Tabbouleh","Shawarma","Falafel","Manoushe"],e:"🥗"},
+{c:"food",q:"Which one is a Lebanese dessert?",a:"Knefeh",w:["Tiramisu","Churros","Mochi","Brownies","Crème brûlée"]},
+{c:"food",q:"Which is NOT a Lebanese dish?",a:"Paella",w:["Kibbeh","Fattoush","Mjaddara","Sfiha"]},
+{c:"food",q:"Which is NOT a Lebanese dish?",a:"Sushi",w:["Tabbouleh","Warak enab","Moghrabieh","Fatteh"]},
+{c:"food",t:true,q:"Kibbeh nayyeh is eaten raw."},
+{c:"food",t:false,q:"Tabbouleh is mostly bulgur with a little parsley."},
+{c:"food",t:true,q:"Lebanese coffee is usually boiled in a 'rakweh'."},
+{c:"food",t:false,q:"Falafel is made from potatoes."},
+{c:"food",t:true,q:"Sfouf is a turmeric cake."},
+{c:"food",t:false,q:"Hummus is made from lentils."},
+
+/* ---------- PLACES ---------- */
+{c:"places",q:"What is the capital of Lebanon?",a:"Beirut",w:["Tripoli","Byblos","Saida","Zahle","Tyre"],e:"🏙️"},
+{c:"places",q:"What is Lebanon's highest peak?",a:"Qornet es Sawda",w:["Sannine","Jabal Barouk","Jabal el Sheikh","Mount Kneisseh"],e:"🏔️",f:"Qornet es Sawda is about 3,088 m high."},
+{c:"places",q:"What is the longest river entirely inside Lebanon?",a:"Litani",w:["Nahr Ibrahim","Nahr el Kalb","Beirut River","Awali"]},
+{c:"places",q:"What is Lebanon's second-largest city?",a:"Tripoli",w:["Saida","Zahle","Jounieh","Tyre","Byblos"]},
+{c:"places",q:"Raouche (Pigeon Rocks) is in…",a:"Beirut",w:["Byblos","Batroun","Tyre","Saida","Jounieh"],e:"🪨"},
+{c:"places",q:"The téléférique to Harissa starts in…",a:"Jounieh",w:["Beirut","Byblos","Batroun","Faraya","Zahle"],e:"🚡"},
+{c:"places",q:"The famous Sea Castle is in…",a:"Saida",w:["Tyre","Tripoli","Batroun","Beirut","Anfeh"],e:"🏰"},
+{c:"places",q:"The Citadel of Raymond de Saint-Gilles is in…",a:"Tripoli",w:["Byblos","Saida","Tyre","Baalbek","Zahle"]},
+{c:"places",q:"Beiteddine Palace is in the…",a:"Chouf",w:["Bekaa","Akkar","Metn","Keserwan","South"]},
+{c:"places",q:"Anjar is famous for its…",a:"Umayyad ruins",w:["Beaches","Ski slopes","Waterfalls","Skyscrapers","Caves"]},
+{c:"places",q:"The Bekaa Valley lies between Mount Lebanon and…",a:"The Anti-Lebanon",w:["The sea","The Qadisha Valley","Mount Sannine","The Chouf"]},
+{c:"places",q:"Faraya is best known for…",a:"Skiing",w:["Beaches","Desert","Palm groves","Rice fields","Ancient ports"],e:"⛷️"},
+{c:"places",q:"The Bekaa is famous for…",a:"Farming & vineyards",w:["Ski resorts","Beaches","Skyscrapers","Oil wells","Fishing ports"],e:"🍇"},
+{c:"places",q:"Ancient Tyre was famous for which colour of dye?",a:"Purple",w:["Blue","Green","Yellow","Orange","Black"]},
+{c:"places",q:"Beirut's airport is named after…",a:"Rafic Hariri",w:["Fouad Chehab","Bechara El Khoury","Camille Chamoun","Gibran Khalil Gibran"],e:"✈️"},
+{c:"places",q:"Lebanon's phone country code is…",a:"+961",w:["+962","+963","+971","+966","+20"],e:"📞"},
+{c:"places",q:"Lebanon's internet domain is…",a:".lb",w:[".le",".lbn",".lbe",".li",".ln"]},
+{c:"places",q:"Nahr el Kalb means…",a:"Dog River",w:["Cat River","Wolf River","Fish River","Snake River","Bird River"],e:"🐕"},
+{c:"places",q:"The Cedars of God are near…",a:"Bsharri",w:["Zahle","Jounieh","Tyre","Saida","Jbeil"],e:"🌲"},
+{c:"places",q:"Mzaar Kfardebian is a…",a:"Ski resort",w:["Beach resort","Shopping mall","Football stadium","Museum","University"]},
+{c:"places",q:"Baatara Gorge waterfall falls through…",a:"Three natural bridges",w:["A glass tunnel","A volcano","A dam","A castle"]},
+{c:"places",q:"Nejmeh Square in Beirut is famous for its…",a:"Clock tower",w:["Giant cedar","Ferris wheel","Statue of a lion","Lighthouse"],e:"🕰️"},
+{c:"places",q:"'Sour' is the Arabic name of…",a:"Tyre",w:["Sidon","Byblos","Tripoli","Baalbek","Zahle"]},
+{c:"places",q:"'Trablos' is the Arabic name of…",a:"Tripoli",w:["Tyre","Byblos","Sidon","Batroun","Baalbek"]},
+{c:"places",q:"'Jbeil' is the Arabic name of…",a:"Byblos",w:["Sidon","Tyre","Tripoli","Baalbek","Zahle"]},
+{c:"places",q:"'Saida' is the Arabic name of…",a:"Sidon",w:["Tyre","Byblos","Tripoli","Baalbek","Batroun"]},
+{c:"places",q:"Akkar is in the…",a:"Far north",w:["Far south","Bekaa","Beirut suburbs","Chouf","Keserwan"]},
+{c:"places",q:"Zahle is nicknamed…",a:"Bride of the Bekaa",w:["Bride of the Sea","City of Sun","Pearl of the North","City of Cedars"]},
+{c:"places",q:"Gemmayzeh and Mar Mikhael are famous for…",a:"Cafés, pubs & nightlife",w:["Ski slopes","Ancient temples","Farmland","Factories","Caves"]},
+{c:"places",q:"Lebanon's area is roughly…",a:"10,000 km²",w:["1,000 km²","50,000 km²","100,000 km²","250,000 km²"]},
+{c:"places",q:"Baalbek is famous for its…",a:"Roman temples",w:["Pyramids","Canals","Skyscrapers","Beaches","Castles on the sea"],e:"🏛️"},
+{c:"places",q:"Byblos is linked to which ancient people?",a:"Phoenicians",w:["Vikings","Aztecs","Mayans","Celts","Mongols"]},
+{c:"places",q:"What can you explore at Jeita?",a:"Caves",w:["A glacier","A volcano","A desert","A coral reef","A pyramid"]},
+{c:"places",q:"Which country borders Lebanon?",a:"Syria",w:["Egypt","Turkey","Jordan","Iraq","Cyprus"]},
+{c:"places",q:"Which sea borders Lebanon?",a:"Mediterranean",w:["Black Sea","Red Sea","Caspian Sea","Dead Sea","Arabian Sea"],e:"🌊"},
+{c:"places",q:"Hamra is a famous…",a:"Street in Beirut",w:["Mountain","River","Dish","Ski resort","Island"]},
+{c:"places",q:"Gibran Khalil Gibran's hometown is…",a:"Bsharri",w:["Zahle","Batroun","Byblos","Jounieh","Ehden"]},
+{c:"places",q:"Which city is famous for its old souks and soap khans?",a:"Tripoli",w:["Faraya","Jounieh","Zahle","Bsharri","Anjar"]},
+{c:"places",t:true,q:"In Lebanon you can ski in the morning and swim in the sea in the afternoon."},
+{c:"places",t:true,q:"Byblos is one of the oldest continuously inhabited cities in the world."},
+{c:"places",t:false,q:"Lebanon is bigger than Belgium."},
+{c:"places",t:true,q:"Lebanon shares land borders with only two countries."},
+{c:"places",t:false,q:"Baalbek is on the coast."},
+{c:"places",t:true,q:"The Qadisha Valley is a UNESCO World Heritage Site."},
+{c:"places",t:false,q:"Jeita Grotto is in Tripoli."},
+{c:"places",t:true,q:"Moussa Castle was built by one man, Moussa Al-Maamari."},
+
+/* ---------- SLANG ---------- */
+{c:"slang",q:"What does 'Yalla' mean?",a:"Let's go / hurry up",w:["Goodbye","Thank you","Delicious","Maybe","Be careful"]},
+{c:"slang",q:"What does 'Khalas' mean?",a:"Enough / done",w:["More please","Hello","Hurry","I'm hungry","Excuse me"]},
+{c:"slang",q:"You say 'Sahtein' to someone who is…",a:"Eating",w:["Sneezing","Leaving","Sleeping","Driving","Crying"],e:"🍽️"},
+{c:"slang",q:"Who is 'Teta'?",a:"Grandma",w:["Aunt","Sister","Teacher","Neighbour","Cousin"],e:"👵"},
+{c:"slang",q:"Who is 'Jeddo'?",a:"Grandpa",w:["Uncle","Brother","Doctor","Priest","Baker"],e:"👴"},
+{c:"slang",q:"What does 'Mabrouk' mean?",a:"Congratulations",w:["Get well soon","Good night","Sorry","Welcome","Good luck"],e:"🎉"},
+{c:"slang",q:"You say 'Na'iman' to someone who just…",a:"Showered or got a haircut",w:["Ate","Woke up","Arrived","Won a game","Bought a car"],e:"💇"},
+{c:"slang",q:"'Hi, kifak, ça va?' is famous because it…",a:"Mixes three languages",w:["Is a song title","Is a tongue twister","Is a prayer","Is rude"]},
+{c:"slang",q:"In Lebanon, 'wasta' means…",a:"Connections / pulling strings",w:["A traffic jam","A street food","A dance move","A tax","A holiday"]},
+{c:"slang",q:"A 'service' in Lebanon is a…",a:"Shared taxi",w:["Restaurant tip","Church mass","Phone plan","Car wash","Delivery app"],e:"🚕"},
+{c:"slang",q:"'Ishtirak' is what you pay for…",a:"Generator electricity",w:["Internet","Water","School","Gym","Netflix"],e:"🔌"},
+{c:"slang",q:"What does 'Tfaddal' mean?",a:"Please, go ahead / help yourself",w:["Go away","Be quiet","Hurry up","I'm sorry","Watch out"]},
+{c:"slang",q:"'Yislamo idayki' literally means…",a:"Bless your hands",w:["Wash your hands","Give me your hand","Hands up","Clap your hands"],e:"🙌"},
+{c:"slang",q:"'Ahla w sahla' means…",a:"Welcome",w:["Goodbye","See you tomorrow","Thank God","Hurry","Bon appétit"]},
+{c:"slang",q:"'Bukra' means…",a:"Tomorrow",w:["Yesterday","Today","Never","Now","Later tonight"]},
+{c:"slang",q:"'Kifik' is said to…",a:"A woman",w:["A man","A group","A child only","A pet"]},
+{c:"slang",q:"'Shou' means…",a:"What",w:["Where","Who","Why","When","How much"]},
+{c:"slang",q:"'Habibi' means…",a:"My dear / my love",w:["My enemy","My boss","My neighbour","My car"],e:"❤️"},
+{c:"slang",q:"'Ya'ne' is used like…",a:"'I mean… / like…'",w:["'Thank you'","'Goodbye'","'Delicious'","'Watch out'"]},
+{c:"slang",q:"In Arabizi, '3' stands for the letter…",a:"ع",w:["ث","خ","ح","ش"]},
+{c:"slang",q:"In Arabizi, '7' (as in 7abibi) stands for…",a:"ح",w:["خ","ع","ه","ق"]},
+{c:"slang",q:"In Arabizi, '2' (as in 2albi) stands for…",a:"ء (hamza)",w:["ع","ق","ح","خ"]},
+{c:"slang",q:"'Ana bi tari2' (I'm on my way) usually means…",a:"I haven't left yet 😅",w:["I've arrived","I'm parking","I'm at the door","I'm not coming"]},
+{c:"slang",q:"'Ya albi' means…",a:"My heart",w:["My eyes","My head","My house","My friend"]},
+{c:"slang",q:"'Inshallah' often means…",a:"God willing / maybe",w:["Definitely not","Right now","I'm sorry","Thank you"]},
+{c:"slang",q:"'Mersi' in Lebanese comes from which language?",a:"French",w:["English","Turkish","Italian","Spanish"]},
+{c:"slang",q:"Reading the 'fenjen' means reading…",a:"The coffee cup grounds",w:["A newspaper","Palms","Tea leaves","Cards"],e:"☕"},
+{c:"slang",q:"'Ma fi mashkal' means…",a:"No problem",w:["No way","No time","No money","No food"]},
+{c:"slang",q:"'Yi2borni' (to'borni) is a loving way to say…",a:"'May you bury me'",w:["'Feed me'","'Call me'","'Hug me'","'Forget me'"],f:"It means you love someone so much you hope to go before them."},
+{c:"slang",t:true,q:"'Sahtein' is said to someone eating or drinking."},
+{c:"slang",t:false,q:"'Teta' means aunt."},
+{c:"slang",t:true,q:"Many Lebanese mix Arabic, French and English in one sentence."},
+{c:"slang",t:false,q:"'Bukra' means yesterday."},
+{c:"slang",t:true,q:"'Mabrouk' is said to congratulate someone."},
+
+/* ---------- CULTURE & TRADITIONS ---------- */
+{c:"culture",q:"Lebanon's Independence Day is on…",a:"November 22",w:["August 1","January 1","March 21","September 1","May 1"],e:"🇱🇧"},
+{c:"culture",q:"Lebanon became independent in…",a:"1943",w:["1920","1946","1958","1918","1960"]},
+{c:"culture",q:"Lebanon gained independence from…",a:"France",w:["Britain","Italy","Spain","Portugal","Germany"]},
+{c:"culture",q:"Lebanese Army Day is on…",a:"August 1",w:["November 22","May 1","June 21","December 25","April 1"]},
+{c:"culture",q:"Mother's Day in Lebanon is on…",a:"March 21",w:["May 10","Second Sunday of May","December 8","June 1"],e:"💐"},
+{c:"culture",q:"Eid il-Burbara is often called…",a:"Lebanese Halloween",w:["Lebanese Christmas","Lebanese New Year","Lebanese Valentine's","Lebanese Thanksgiving"],e:"🎃"},
+{c:"culture",q:"What is Lebanon's national anthem called?",a:"Kulluna lil Watan",w:["Mawtini","Biladi Biladi","Humat ad-Diyar","Ya Beirut"],e:"🎶"},
+{c:"culture",q:"What colours are the flag's stripes?",a:"Red, white, red",w:["Green, white, green","Blue, white, blue","Red, green, red","White, red, white"]},
+{c:"culture",q:"Which tree is on the Lebanese flag?",a:"Cedar",w:["Palm","Olive","Oak","Pine","Fig"],e:"🌲"},
+{c:"culture",q:"Lebanon's currency is the…",a:"Lebanese pound (lira)",w:["Dinar","Dirham","Riyal","Euro","Shekel"],e:"💵"},
+{c:"culture",q:"The Phoenicians are famous for spreading…",a:"The alphabet",w:["Paper","The compass","Printing","Gunpowder","The wheel"],e:"🔤"},
+{c:"culture",q:"Which country has the largest Lebanese diaspora?",a:"Brazil",w:["France","USA","Australia","Canada","Mexico"],e:"🌎"},
+{c:"culture",q:"Lebanon's official language is…",a:"Arabic",w:["French","English","Armenian","Aramaic","Turkish"]},
+{c:"culture",q:"Dabke is a…",a:"Traditional group dance",w:["Dessert","Mountain","Boat","Drum","Card game"],e:"💃"},
+{c:"culture",q:"The dabke leader usually waves a…",a:"Handkerchief",w:["Flag","Sword","Umbrella","Candle","Phone"]},
+{c:"culture",q:"A 'zaffe' happens at…",a:"Weddings",w:["Funerals","Exams","Football matches","Elections","Birthdays only"],e:"🥁"},
+{c:"culture",q:"The 'derbakeh' is a…",a:"Drum",w:["Flute","Guitar","Violin","Dance","Dish"]},
+{c:"culture",q:"The oud is a…",a:"String instrument",w:["Drum","Wind instrument","Dance","Dessert","Hat"]},
+{c:"culture",q:"How many cheek kisses is the classic Lebanese greeting?",a:"Three",w:["One","Two","Five","None"],e:"😘"},
+{c:"culture",q:"Lebanon was once called the…",a:"Switzerland of the East",w:["Venice of the East","Norway of the East","Japan of the West","Texas of the East"]},
+{c:"culture",q:"Beirut has been nicknamed the…",a:"Paris of the Middle East",w:["London of Asia","Rome of Africa","Tokyo of the Gulf","New York of the Sea"]},
+{c:"culture",q:"On Eid il-Burbara, kids traditionally…",a:"Dress up in costumes",w:["Get new phones","Plant cedars","Go skiing","Paint eggs"]},
+{c:"culture",q:"Which holiday is famous for ma'moul?",a:"Easter & Eid",w:["Independence Day","Labour Day","Army Day","New Year"]},
+{c:"culture",q:"Sunday in many Lebanese homes means…",a:"Big family lunch",w:["Fasting all day","Eating only cereal","Working late","Silent day"]},
+{c:"culture",q:"A Lebanese host will usually first offer you…",a:"Coffee",w:["Nothing","A bill","A newspaper","A pillow"],e:"☕"},
+{c:"culture",t:true,q:"Lebanon's Independence Day is November 22."},
+{c:"culture",t:false,q:"The cedar on the flag is blue."},
+{c:"culture",t:true,q:"Mother's Day in Lebanon is celebrated on March 21."},
+{c:"culture",t:false,q:"Lebanon became independent from Britain."},
+{c:"culture",t:true,q:"Brazil has one of the largest Lebanese communities in the world."},
+{c:"culture",t:false,q:"Dabke is danced alone."},
+
+/* ---------- FAMOUS PEOPLE ---------- */
+{c:"people",q:"Which singer do many Lebanese listen to every morning?",a:"Fairuz",w:["Nancy Ajram","Elissa","Haifa Wehbe","Wael Kfoury","Myriam Fares"],e:"📻"},
+{c:"people",q:"Fairuz is nicknamed 'Our ambassador to the…'",a:"Stars",w:["Moon","Sea","World","Mountains"],e:"⭐"},
+{c:"people",q:"Ziad Rahbani is the son of…",a:"Fairuz",w:["Sabah","Majida El Roumi","Nancy Ajram","Julia Boutros"]},
+{c:"people",q:"Which famous book did Gibran Khalil Gibran write?",a:"The Prophet",w:["The Alchemist","The Little Prince","One Thousand and One Nights","Animal Farm"],e:"📖"},
+{c:"people",q:"Which Lebanese-born writer joined the Académie française?",a:"Amin Maalouf",w:["Gibran Khalil Gibran","Mikhail Naimy","Said Akl","Elias Khoury"]},
+{c:"people",q:"Elie Saab is famous for…",a:"Fashion design",w:["Cooking","Football","Singing","Architecture","Painting"],e:"👗"},
+{c:"people",q:"Zuhair Murad is a famous…",a:"Fashion designer",w:["Chef","Footballer","Singer","Actor","Pilot"]},
+{c:"people",q:"Which Nadine Labaki film was nominated for an Oscar?",a:"Capernaum",w:["Parasite","Amélie","Slumdog Millionaire","Cinema Paradiso"],e:"🎬"},
+{c:"people",q:"Which of these is a Lebanese pop star?",a:"Nancy Ajram",w:["Amr Diab","Saad Lamjarred","Hussain Al Jassmi","Mohamed Mounir"],e:"🎤"},
+{c:"people",q:"Which of these is a Lebanese singer?",a:"Wael Kfoury",w:["Tamer Hosny","Kadim Al Sahir","Cheb Khaled","Mohammed Assaf"]},
+{c:"people",q:"Sabah's famous nickname is…",a:"Al-Shahroura (the songbird)",w:["The Lady of the Sea","The Voice of the Moon","The Golden Cedar"]},
+{c:"people",q:"Wadih El Safi was a legendary…",a:"Singer",w:["Footballer","Painter","Chef","Poet only","Actor only"]},
+{c:"people",q:"Marcel Khalife is famous for playing the…",a:"Oud",w:["Piano","Violin","Drums","Trumpet","Guitar"]},
+{c:"people",q:"Fadi El Khatib is a legend of which sport?",a:"Basketball",w:["Football","Tennis","Swimming","Boxing","Volleyball"],e:"🏀"},
+{c:"people",q:"Which Hollywood star was born in Beirut?",a:"Keanu Reeves",w:["Tom Cruise","Brad Pitt","Leonardo DiCaprio","Will Smith"],e:"🎥"},
+{c:"people",q:"Which pop singer was born in Beirut?",a:"Mika",w:["Ed Sheeran","Bruno Mars","Harry Styles","Shawn Mendes"]},
+{c:"people",q:"Nejmeh and Ansar are famous Lebanese…",a:"Football clubs",w:["Bands","TV channels","Restaurants","Universities","Banks"],e:"⚽"},
+{c:"people",q:"Riyadi and Sagesse are famous Lebanese…",a:"Basketball clubs",w:["Pastry shops","Radio stations","Ski resorts","Schools only"],e:"🏀"},
+{c:"people",t:true,q:"Keanu Reeves was born in Beirut."},
+{c:"people",t:true,q:"Salma Hayek's father is of Lebanese origin."},
+{c:"people",t:true,q:"Shakira has Lebanese roots on her father's side."},
+{c:"people",t:false,q:"Fairuz is a famous footballer."},
+{c:"people",t:false,q:"Gibran Khalil Gibran wrote 'The Little Prince'."},
+{c:"people",t:true,q:"Amin Maalouf is a member of the Académie française."},
+
+/* ---------- DAILY LIFE ---------- */
+{c:"life",q:"When state electricity cuts, many homes switch to…",a:"The neighbourhood generator",w:["Candles only","Solar on the moon","Wind turbines","A neighbour's TV"],e:"💡"},
+{c:"life",q:"The most-used part of a car in Lebanese traffic is…",a:"The horn 😂",w:["The turn signal","The seatbelt","The rear-view mirror","The spare tyre"],e:"🚗"},
+{c:"life",q:"A Lebanese mom says if you go out with wet hair you'll…",a:"Catch a cold",w:["Get rich","Grow taller","Win the lottery","Get a tan"],e:"🥶"},
+{c:"life",q:"'Ka'ak' sellers are famous for selling bread with…",a:"Za'atar",w:["Ketchup","Peanut butter","Mayonnaise","Ice cream"]},
+{c:"life",q:"At a Lebanese gathering, food is usually…",a:"Way too much",w:["Barely enough","Only snacks","Ordered online only","Served cold"]},
+{c:"life",q:"What do Lebanese usually say when leaving a party?",a:"'Yalla, bye!' — and stay 1 more hour",w:["Nothing","'Bye' and leave right away","'See you next year'"],e:"👋"},
+{c:"life",q:"If you refuse food from teta, she will…",a:"Insist until you eat",w:["Say okay","Eat it herself","Throw it away","Call the police"]},
+{c:"life",q:"The 'abou' who sells vegetables from his truck usually…",a:"Shouts over a loudspeaker",w:["Sends emails","Uses an app","Sings opera","Stays silent"],e:"📢"},
+{c:"life",q:"Lebanese people often greet friends by asking…",a:"'Kifak? Shou fi ma fi?'",w:["'What time is it?'","'Where's your ID?'","'Are you sick?'"]},
+{c:"life",q:"Where do many Lebanese families go on summer weekends?",a:"The beach or the mountains (day'a)",w:["The airport","The office","Underground","The desert"],e:"🏖️"},
+{c:"life",q:"'Day'a' means…",a:"The village / hometown",w:["The city centre","The supermarket","The beach","The school"],e:"🏡"},
+{c:"life",q:"Lebanese weddings are famous for…",a:"Zaffe, dabke & fireworks",w:["Silence","Being 10 minutes long","No food","No music"],e:"💒"},
+{c:"life",q:"A 'manoushe' is a typical…",a:"Breakfast",w:["Midnight dessert","Wedding cake","Christmas dinner","Drink"]},
+{c:"life",q:"A typical Lebanese 'souk' is a…",a:"Market",w:["Mosque","Bank","Bridge","School"],e:"🛍️"},
+{c:"life",q:"The classic Lebanese street sandwich is…",a:"Shawarma",w:["Hot dog","Taco","Burrito","Club sandwich"]},
+{c:"life",t:true,q:"Many Lebanese homes pay a monthly subscription to a private generator."},
+{c:"life",t:true,q:"Lebanese mothers often think you're always hungry."},
+{c:"life",t:false,q:"Lebanese gatherings usually have too little food."},
+{c:"life",t:true,q:"Shared taxis in Lebanon are called 'service'."},
+{c:"life",t:false,q:"In Lebanon, nobody uses the car horn."}
 ];
+BANK.forEach((q,i)=>q.id=i);
+
+const CATS={all:"🎲 Mixed",food:"🍽️ Food",places:"🗺️ Places",slang:"💬 Slang",culture:"🎉 Culture",people:"⭐ Famous",life:"🏠 Daily life"};
+const MODES={
+  classic:{name:"Classic",icon:"🎯",desc:"15 Q · 20 s",n:15,time:20,lives:0},
+  blitz:{name:"Blitz",icon:"⚡",desc:"25 Q · 8 s",n:25,time:8,lives:0},
+  survival:{name:"Survival",icon:"💀",desc:"3 lives · 12 s",n:999,time:12,lives:3}
+};
 const SHAPES=['<svg viewBox="0 0 40 40"><path fill="#fff" d="M20 4 37 35H3z"/></svg>','<svg viewBox="0 0 40 40"><path fill="#fff" d="M20 2 38 20 20 38 2 20z"/></svg>','<svg viewBox="0 0 40 40"><circle fill="#fff" cx="20" cy="20" r="17"/></svg>','<svg viewBox="0 0 40 40"><rect fill="#fff" x="4" y="4" width="32" height="32"/></svg>'];
-const LIMIT=20;
+const CHEERS=["Yalla, nice!","Mabrouk!","3a2el!","Wlek, genius!","Teta is proud!","Bravo!","Ya 3ayne!","Too easy!"];
+const OOPS=["Wlek, no!","Teta is disappointed…","Ya haram…","Khalas, next one!","Shou hayda?!","Almost!"];
+
+/* ================= STORAGE ================= */
+const store={get(k,d){try{const v=localStorage.getItem('lu_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('lu_'+k,JSON.stringify(v))}catch(e){}}};
+
+/* ================= STATE ================= */
 const $=id=>document.getElementById(id);
-let i=0,score=0,streak=0,results=[],tStart=0,tick=null,locked=false,muted=false,ac=null;
+let mode=store.get('mode','classic'),cat=store.get('cat','all'),muted=store.get('muted',false);
+let G=null,tick=null,music=null,ac=null;
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on')}
-function beep(f,d=.12,type='sine',v=.15){if(muted)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(ac.destination);const t=ac.currentTime;g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d)}catch(e){}}
-function tune(notes){notes.forEach((n,k)=>setTimeout(()=>beep(n,.18,'triangle'),k*120))}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0)}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
+/* ================= SOUND ================= */
+function actx(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}return ac}
+function beep(f,d=.12,type='sine',v=.12,delay=0){if(muted)return;const a=actx();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;o.connect(g);g.connect(a.destination);const t=a.currentTime+delay;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}
+function tune(n,step=.11,type='triangle'){n.forEach((f,k)=>beep(f,.2,type,.13,k*step))}
+const RIFF=[220,0,262,0,330,0,262,0,196,0,247,0,294,0,247,0];
+function startMusic(fast){stopMusic();let k=0;music=setInterval(()=>{const f=RIFF[k++%RIFF.length];if(f)beep(f,.12,'square',.035);if(k%4===1)beep(110,.1,'sine',.06)},fast?110:150)}
+function stopMusic(){clearInterval(music);music=null}
+
+/* ================= BACKGROUND ================= */
+(function(){const bg=$('bg');const shapes=['▲','◆','●','■','🌲'];for(let i=0;i<18;i++){const e=document.createElement('i');e.textContent=shapes[i%5];e.style.left=Math.random()*100+'vw';e.style.fontSize=(30+Math.random()*80)+'px';e.style.animationDuration=(18+Math.random()*25)+'s';e.style.animationDelay=(-Math.random()*40)+'s';bg.appendChild(e)}})();
+
+/* ================= CONFETTI ================= */
+const cv=$('confetti'),cx=cv.getContext('2d');let parts=[],craf=null;
+function confetti(n=180){cv.width=innerWidth;cv.height=innerHeight;const cols=['#e21b3c','#1368ce','#d89e00','#26890c','#fff','#ffd23f'];for(let i=0;i<n;i++)parts.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,r:Math.random()*6.28,vr:(Math.random()-.5)*.3,s:6+Math.random()*8,c:cols[i%cols.length]});if(!craf)loop()}
+function loop(){cx.clearRect(0,0,cv.width,cv.height);parts=parts.filter(p=>p.y<cv.height+30);parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.r+=p.vr;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore()});craf=parts.length?requestAnimationFrame(loop):(cx.clearRect(0,0,cv.width,cv.height),null)}
+
+/* ================= HOME ================= */
+function renderHome(){
+  $('name').value=store.get('name','');
+  $('modes').innerHTML=Object.entries(MODES).map(([k,m])=>`<div class="mode ${k===mode?'sel':''}" data-m="${k}"><b>${m.icon}</b>${m.name}<small>${m.desc}</small></div>`).join('');
+  $('modes').querySelectorAll('.mode').forEach(d=>d.onclick=()=>{mode=d.dataset.m;store.set('mode',mode);beep(660,.06);renderHome()});
+  $('cats').innerHTML=Object.entries(CATS).map(([k,v])=>`<span class="chip ${k===cat?'sel':''}" data-c="${k}">${v}</span>`).join('');
+  $('cats').querySelectorAll('.chip').forEach(d=>d.onclick=()=>{cat=d.dataset.c;store.set('cat',cat);beep(660,.06);renderHome()});
+  const st=store.get('stats',{games:0,right:0,total:0,best:0});
+  const seen=store.get('seen',[]).length;
+  $('stats').textContent=st.games?`Games ${st.games} · Accuracy ${Math.round(st.right/st.total*100)}% · Best streak 🔥${st.best} · Seen ${seen}/${BANK.length} questions`:`${BANK.length} questions in the bank — every game is different!`;
+}
 $('go').onclick=start;$('name').onkeydown=e=>{if(e.key==='Enter')start()};
-$('again').onclick=()=>show('s-start');
-$('mute').onclick=()=>{muted=!muted;$('mute').textContent=muted?'🔇':'🔊'};
+$('again').onclick=start;$('home').onclick=()=>{stopMusic();renderHome();show('s-home')};
+$('hof').onclick=()=>openHof(mode);$('hofBack').onclick=()=>{renderHome();show('s-home')};
+let resetArm=false;
+$('hofReset').onclick=()=>{if(!resetArm){resetArm=true;$('resetMsg').textContent='Tap "Reset scores" again to wipe the Hall of Fame on this device.';setTimeout(()=>{resetArm=false;$('resetMsg').textContent=''},4000);return}store.set('board',{});resetArm=false;$('resetMsg').textContent='Hall of Fame cleared.';openHof(hofMode)};
+$('mute').onclick=()=>{muted=!muted;store.set('muted',muted);$('mute').textContent=muted?'🔇':'🔊';if(muted)stopMusic();else if(G&&!G.locked)startMusic(mode==='blitz')};
+$('mute').textContent=muted?'🔇':'🔊';
 
-function start(){i=0;score=0;streak=0;results=[];countdown('Get ready! / Prêts ?',ask)}
-function countdown(title,cb){show('s-count');$('cTitle').textContent=title;let n=3;const draw=()=>{const el=$('cNum');el.textContent=n;el.style.animation='none';el.offsetHeight;el.style.animation='';beep(440+n*80)};draw();const iv=setInterval(()=>{n--;if(n===0){clearInterval(iv);cb()}else draw()},800)}
+/* ================= PICK QUESTIONS (no repeats) ================= */
+function pickQuestions(n){
+  let pool=BANK.filter(q=>cat==='all'||q.c===cat);
+  let seen=new Set(store.get('seen',[]));
+  let fresh=pool.filter(q=>!seen.has(q.id));
+  if(fresh.length<Math.min(n,pool.length)){ // cycle finished → reset seen for this pool
+    pool.forEach(q=>seen.delete(q.id));store.set('seen',[...seen]);fresh=pool;
+  }
+  let picked=shuffle(fresh).slice(0,n);
+  if(picked.length<n&&n<999)picked=picked.concat(shuffle(pool.filter(q=>!picked.includes(q))).slice(0,n-picked.length));
+  // spread categories a bit in mixed mode: avoid same cat back-to-back
+  for(let i=1;i<picked.length;i++)if(picked[i].c===picked[i-1].c){const j=picked.findIndex((q,k)=>k>i&&q.c!==picked[i-1].c);if(j>0)[picked[i],picked[j]]=[picked[j],picked[i]]}
+  return picked;
+}
+function markSeen(id){const s=store.get('seen',[]);if(!s.includes(id)){s.push(id);store.set('seen',s)}}
+
+/* ================= GAME ================= */
+function start(){
+  const nm=$('name').value.trim()||'Player';store.set('name',$('name').value.trim());
+  const M=MODES[mode];
+  const qs=pickQuestions(M.n===999?200:M.n);
+  G={name:nm,M,qs,i:0,score:0,streak:0,best:0,right:0,lives:M.lives,log:[],power:{half:1,double:1,freeze:1},dbl:false,frozen:false,locked:true,elapsed:0};
+  countdown(`${M.icon} ${M.name} · ${CATS[cat]}`,ask);
+}
+function countdown(title,cb){show('s-count');$('cTitle').textContent=title;let n=3;const draw=()=>{const el=$('cNum');el.textContent=n;el.style.animation='none';el.offsetHeight;el.style.animation='';beep(400+n*90,.15,'square',.08)};draw();const iv=setInterval(()=>{n--;if(n===0){clearInterval(iv);beep(990,.3,'square',.08);cb()}else draw()},750)}
 
 function ask(){
-  const [en,fr,ans]=Q[i];locked=false;
-  $('qNum').textContent=(i+1)+' / '+Q.length;$('score').textContent=score;
-  $('streak').textContent=streak>1?'🔥 '+streak:'';$('streak').style.display=streak>1?'':'none';
-  $('qText').innerHTML=en+'<span class="fr">'+fr+'</span>';
-  $('answers').innerHTML=ans.map((a,k)=>`<button class="ans a${k}" data-k="${k}">${SHAPES[k]}${a}</button>`).join('');
-  $('answers').querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(+b.dataset.k));
-  show('s-q');tStart=performance.now();
-  clearInterval(tick);tick=setInterval(update,100);update();
+  const q=G.qs[G.i];G.locked=false;G.dbl=false;G.frozen=false;G.elapsed=0;G.last=performance.now();G.q=q;
+  const M=G.M;
+  $('qNum').textContent=M.lives?`Q ${G.i+1}`:`${G.i+1} / ${G.qs.length}`;
+  $('score').textContent=G.score.toLocaleString();
+  $('streak').textContent='🔥 '+G.streak;$('streak').style.display=G.streak>1?'':'none';
+  $('lives').textContent='❤️'.repeat(G.lives)+'🖤'.repeat(Math.max(0,M.lives-G.lives));$('lives').style.display=M.lives?'':'none';
+  $('qText').innerHTML=`<span class="cat">${CATS[q.c]}</span>${q.e?`<span class="emo">${q.e}</span>`:''}${esc(q.q)}`;
+  let opts,box=$('answers');
+  if('t' in q){opts=[{txt:'True',ok:q.t===true,col:1,sh:1},{txt:'False',ok:q.t===false,col:0,sh:0}];box.className='answers tf'}
+  else{opts=shuffle([{txt:q.a,ok:true},...shuffle(q.w).slice(0,3).map(t=>({txt:t,ok:false}))]).map((o,k)=>({...o,col:k,sh:k}));box.className='answers'}
+  G.opts=opts;
+  box.innerHTML=opts.map((o,k)=>`<button class="ans c${o.col}" data-k="${k}">${SHAPES[o.sh]}${esc(o.txt)}</button>`).join('');
+  box.querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+  $('pw-half').disabled=!G.power.half||('t' in q);$('pw-double').disabled=!G.power.double;$('pw-freeze').disabled=!G.power.freeze;
+  ['pw-half','pw-double','pw-freeze'].forEach(id=>$(id).classList.remove('active'));
+  $('timer').classList.remove('frozen');
+  show('s-q');startMusic(mode==='blitz');
+  clearInterval(tick);tick=setInterval(update,50);update();
 }
+$('pw-half').onclick=()=>{if(G.locked||!G.power.half)return;G.power.half=0;$('pw-half').disabled=true;beep(500,.15,'sawtooth',.06);let wrong=[...document.querySelectorAll('.ans')].filter((b,k)=>!G.opts[k].ok);shuffle(wrong).slice(0,2).forEach(b=>b.classList.add('gone'))};
+$('pw-double').onclick=()=>{if(G.locked||!G.power.double)return;G.power.double=0;G.dbl=true;$('pw-double').disabled=true;$('pw-double').classList.add('active');tune([600,900],.08)};
+$('pw-freeze').onclick=()=>{if(G.locked||!G.power.freeze)return;G.power.freeze=0;G.frozen=true;$('pw-freeze').disabled=true;$('pw-freeze').classList.add('active');$('timer').classList.add('frozen');tune([1200,900,600],.06,'sine');setTimeout(()=>{if(G){G.frozen=false;G.last=performance.now();$('timer').classList.remove('frozen')}},5000)};
+
 function update(){
-  const left=Math.max(0,LIMIT-(performance.now()-tStart)/1000),s=Math.ceil(left);
-  const t=$('timer');if(t.textContent!=s){t.textContent=s;if(s<=5&&s>0)beep(880,.06,'square',.06)}
-  t.classList.toggle('low',s<=5);$('bar').style.width=(left/LIMIT*100)+'%';
+  const now=performance.now();if(!G.frozen)G.elapsed+=(now-G.last)/1000;G.last=now;
+  const L=G.M.time,left=Math.max(0,L-G.elapsed),s=Math.ceil(left),t=$('timer');
+  if(t.textContent!=s){t.textContent=s;if(s<=3&&s>0&&!G.frozen)beep(880,.06,'square',.06)}
+  t.classList.toggle('low',s<=3&&!G.frozen);$('bar').style.width=(left/L*100)+'%';
   if(left<=0)answer(-1);
 }
 function answer(k){
-  if(locked)return;locked=true;clearInterval(tick);
-  const q=Q[i],ok=k===q[3],el=(performance.now()-tStart)/1000;
+  if(G.locked)return;G.locked=true;clearInterval(tick);stopMusic();
+  const q=G.q,ok=k>=0&&G.opts[k].ok,L=G.M.time;
   let pts=0;
-  if(ok){streak++;pts=Math.round(1000*(1-Math.min(el,LIMIT)/LIMIT/2));if(streak>=2)pts+=Math.min(streak-1,5)*100;score+=pts}else streak=0;
-  results.push({ok,k});
-  document.querySelectorAll('.ans').forEach((b,j)=>{b.disabled=true;if(j===q[3])b.classList.add('right');else{b.classList.add('dim');if(j===k)b.classList.add('wrong')}});
-  ok?tune([523,659,784,1047]):tune([392,311]);
+  if(ok){G.streak++;G.right++;G.best=Math.max(G.best,G.streak);pts=Math.round(1000*(1-Math.min(G.elapsed,L)/L/2));pts+=Math.min(G.streak-1,5)*100;if(G.dbl)pts*=2;G.score+=pts}
+  else{G.streak=0;if(G.M.lives)G.lives--}
+  markSeen(q.id);
+  const correctTxt=G.opts.find(o=>o.ok).txt;
+  G.log.push({q,ok,correctTxt});
+  document.querySelectorAll('.ans').forEach((b,j)=>{b.disabled=true;if(G.opts[j].ok)b.classList.add('right');else{b.classList.add('dim');if(j===k)b.classList.add('wrong')}});
+  ok?tune([523,659,784,1047]):tune([392,330,262],.13,'sawtooth');
   setTimeout(()=>{
-    const f=$('feedback');f.className=ok?'ok on':'no on';
-    $('fbTitle').textContent=ok?'Correct! / Bravo !':(k<0?"Time's up! / Temps écoulé !":'Incorrect');
-    $('fbPts').textContent=ok?'+ '+pts:'Answer / Réponse : '+q[2][q[3]];
-    $('fbFact').textContent=q[4];
-    $('fbStreak').textContent=ok&&streak>1?'🔥 Answer streak: '+streak:'';
-    setTimeout(()=>{f.className='';i++;i<Q.length?ask():end()},3200);
-  },900);
+    const f=$('fb');f.className=ok?'ok on':'no on';
+    $('fbTitle').textContent=ok?CHEERS[Math.random()*CHEERS.length|0]:(k<0?"Time's up! ⏰":OOPS[Math.random()*OOPS.length|0]);
+    $('fbPts').textContent=ok?`+ ${pts.toLocaleString()}${G.dbl?' (x2!)':''}${G.streak>1?'  🔥'+G.streak:''}`:'Answer: '+correctTxt;
+    $('fbFact').textContent=q.f||'';
+    const r=rankFor(G.score);$('fbRank').textContent=`${G.score.toLocaleString()} pts · All-time rank #${r}`;
+    if(ok&&G.streak>=3&&G.streak%3===0)confetti(60);
+    setTimeout(()=>{f.className='';G.i++;const over=(G.M.lives&&G.lives<=0)||G.i>=G.qs.length;over?end():ask()},ok?2200:2800);
+  },700);
 }
+
+/* ================= LEADERBOARD ================= */
+function boardKey(m){return m}
+function getBoard(m){return (store.get('board',{})[boardKey(m)]||[])}
+function rankFor(score){return getBoard(mode).filter(e=>e.score>score).length+1}
+function saveScore(e){const all=store.get('board',{});const b=(all[boardKey(mode)]||[]);b.push(e);b.sort((a,c)=>c.score-a.score);all[boardKey(mode)]=b.slice(0,50);store.set('board',all);return all[boardKey(mode)].indexOf(e)+1}
+function rowsHtml(list,meTs){if(!list.length)return '<div class="row"><span class="n" style="text-align:center">No scores yet — be the first! 🇱🇧</span></div>';return list.slice(0,10).map((e,i)=>`<div class="row ${e.ts===meTs?'me':''}" style="animation-delay:${i*.05}s"><span class="r">${['🥇','🥈','🥉'][i]||i+1}</span><span class="n">${esc(e.name)}<small>${CATS[e.cat]||''} · ${e.right}/${e.total} · 🔥${e.best} · ${new Date(e.ts).toLocaleDateString()}</small></span><span class="s">${e.score.toLocaleString()}</span></div>`).join('')}
+let hofMode='classic';
+function openHof(m){hofMode=m;$('hofTabs').innerHTML=Object.entries(MODES).map(([k,v])=>`<span class="chip ${k===m?'sel':''}" data-m="${k}">${v.icon} ${v.name}</span>`).join('');$('hofTabs').querySelectorAll('.chip').forEach(c=>c.onclick=()=>openHof(c.dataset.m));$('hofBoard').innerHTML=rowsHtml(getBoard(m));show('s-hof')}
+
+/* ================= END ================= */
 function end(){
-  const c=results.filter(r=>r.ok).length;
-  show('s-end');$('final').textContent=score;
-  const pct=c/Q.length,name=$('name').value.trim()||'Player';
-  $('verdict').textContent=`${name}: ${c}/${Q.length} — `+(pct===1?'Perfect! Lebanon unlocked! 🇱🇧':pct>=.75?'Excellent! / Excellent !':pct>=.5?'Well done! / Bien joué !':'Keep exploring! / Continuez à explorer !');
-  $('medal').textContent=pct>=.75?'🥇':pct>=.5?'🥈':'🥉';
-  $('review').innerHTML=Q.map((q,j)=>`<div><b>${results[j].ok?'✅':'❌'}</b>${j+1}. ${q[0]} → <b>${q[2][q[3]]}</b></div>`).join('');
-  tune([523,659,784,659,784,1047]);
+  stopMusic();
+  const total=G.log.length,acc=total?G.right/total:0;
+  const entry={name:G.name,score:G.score,right:G.right,total,best:G.best,cat,ts:Date.now()};
+  const rank=saveScore(entry);
+  const st=store.get('stats',{games:0,right:0,total:0,best:0});st.games++;st.right+=G.right;st.total+=total;st.best=Math.max(st.best,G.best);store.set('stats',st);
+  $('endTitle').textContent=`${G.M.icon} ${G.M.name} · ${CATS[cat]} · Final score`;
+  animateNum($('final'),G.score);
+  $('verdict').textContent=`${G.name}: ${G.right}/${total} correct — `+(acc===1?'100% Lebnene! 🇱🇧👑':acc>=.8?'Wlek, legend! 🔥':acc>=.6?'Not bad ya habibi! 👏':acc>=.4?'Teta says: study more 📚':'Are you sure you\'re Lebanese? 😂');
+  const badges=[];
+  if(rank===1)badges.push('👑 New #1 all-time!');else if(rank<=3)badges.push(`🏅 Top 3 all-time (#${rank})`);else if(rank<=10)badges.push(`⭐ Top 10 (#${rank})`);
+  if(acc===1&&total>=5)badges.push('💯 Perfect game');
+  if(G.best>=5)badges.push(`🔥 ${G.best} in a row`);
+  if(G.power.half&&G.power.double&&G.power.freeze)badges.push('🧠 No power-ups used');
+  if(G.M.lives&&total>=20)badges.push('💀 Survivor: 20+ questions');
+  $('badges').innerHTML=badges.map((b,i)=>`<span class="badge" style="animation-delay:${.3+i*.15}s">${b}</span>`).join('');
+  $('endBoard').innerHTML=rowsHtml(getBoard(mode),entry.ts)+(rank>10?`<div class="row me"><span class="r">${rank}</span><span class="n">${esc(G.name)}</span><span class="s">${G.score.toLocaleString()}</span></div>`:'');
+  $('review').innerHTML=G.log.map((l,j)=>`<div>${l.ok?'✅':'❌'} ${j+1}. ${esc(l.q.q)} → <b>${esc(l.correctTxt)}</b></div>`).join('');
+  show('s-end');
+  if(rank<=3||acc>=.8){confetti(260);tune([523,659,784,1047,784,1047,1319],.12)}else tune([392,523,659,523],.15);
 }
+function animateNum(el,to){const t0=performance.now(),d=1200;(function f(t){const p=Math.min(1,(t-t0)/d);el.textContent=Math.round(to*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(f)})(t0)}
+
+renderHome();
 </script>
 </body>
 </html>
