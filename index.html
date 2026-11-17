@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lebanon Unlocked – Quiz Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Montserrat,system-ui,sans-serif;background:#46178f;color:#fff;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0;background:
+ radial-gradient(circle at 15% 20%,rgba(255,255,255,.08) 0 120px,transparent 121px),
+ radial-gradient(circle at 85% 75%,rgba(255,255,255,.06) 0 180px,transparent 181px),
+ radial-gradient(circle at 70% 10%,rgba(255,255,255,.05) 0 80px,transparent 81px);pointer-events:none}
+.screen{position:relative;min-height:100vh;display:none;flex-direction:column;padding:16px;gap:14px}
+.screen.on{display:flex}
+.center{align-items:center;justify-content:center;text-align:center}
+.logo{font-weight:900;font-size:clamp(40px,9vw,80px);line-height:.95;letter-spacing:-1px;text-shadow:0 6px 0 rgba(0,0,0,.25)}
+.logo span{color:#26890c;display:block}
+.sub{opacity:.85;font-weight:600}
+.cedar{width:80px;height:80px}
+.card{background:#fff;color:#333;border-radius:10px;padding:22px;width:min(420px,92vw);box-shadow:0 6px 0 rgba(0,0,0,.25);display:flex;flex-direction:column;gap:12px}
+input{font:inherit;font-weight:700;font-size:20px;padding:14px;border:3px solid #ddd;border-radius:6px;text-align:center;outline:none}
+input:focus{border-color:#46178f}
+.btn{font:inherit;font-weight:800;font-size:20px;padding:14px 22px;border:0;border-radius:6px;background:#333;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.35);transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.btn.light{background:#fff;color:#46178f}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+.pill{background:rgba(0,0,0,.25);padding:8px 14px;border-radius:30px;font-size:15px}
+.qbox{background:#fff;color:#222;border-radius:8px;padding:20px 16px;text-align:center;font-weight:800;font-size:clamp(19px,3.4vw,32px);box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.qbox .fr{display:block;font-weight:600;font-size:.72em;color:#666;margin-top:6px}
+.mid{flex:1;display:flex;align-items:center;justify-content:center;gap:24px;min-height:110px}
+.timer{width:90px;height:90px;border-radius:50%;background:#864cbf;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.timer.low{background:#e21b3c;animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.08)}}
+.flag{height:70px;border-radius:4px;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ans{position:relative;border:0;border-radius:6px;min-height:90px;padding:14px 14px 14px 64px;color:#fff;font:inherit;font-weight:800;font-size:clamp(15px,2.4vw,22px);text-align:left;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.3);transition:opacity .25s,transform .1s}
+.ans:active{transform:translateY(3px)}
+.ans svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:34px;height:34px}
+.a0{background:#e21b3c}.a1{background:#1368ce}.a2{background:#d89e00}.a3{background:#26890c}
+.ans.dim{opacity:.25}
+.ans.right::after{content:"✔";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:28px}
+.ans.wrong::after{content:"✖";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:28px}
+.ans:disabled{cursor:default}
+.bar{height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:#fff;width:100%;transition:width .1s linear}
+#feedback{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;z-index:5;padding:20px}
+#feedback.on{display:flex;animation:pop .25s}
+#feedback.ok{background:#26890c}#feedback.no{background:#e21b3c}
+@keyframes pop{from{opacity:0;transform:scale(1.1)}}
+#feedback h2{font-size:clamp(36px,8vw,64px);font-weight:900}
+#feedback .pts{background:rgba(0,0,0,.25);padding:10px 22px;border-radius:6px;font-size:26px;font-weight:900}
+#feedback .fact{max-width:520px;font-weight:600;opacity:.95}
+.big{font-size:clamp(50px,12vw,96px);font-weight:900;text-shadow:0 6px 0 rgba(0,0,0,.25)}
+.podium{display:flex;align-items:flex-end;gap:8px;height:150px}
+.podium div{width:70px;background:#fff;color:#46178f;border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-weight:900;font-size:24px}
+.review{width:min(620px,94vw);display:flex;flex-direction:column;gap:6px;text-align:left;max-height:40vh;overflow:auto}
+.review div{background:rgba(0,0,0,.2);padding:8px 12px;border-radius:6px;font-size:14px;font-weight:600}
+.review b{margin-right:6px}
+.mute{position:fixed;bottom:12px;right:12px;z-index:9;background:rgba(0,0,0,.3);border:0;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;cursor:pointer}
+.count{font-size:120px;font-weight:900;animation:pop .4s}
+@media(max-width:520px){.answers{grid-template-columns:1fr}.ans{min-height:64px}.mid{min-height:80px}}
+</style>
+</head>
+<body>
+
+<!-- START -->
+<section id="s-start" class="screen center on">
+  <svg class="cedar" viewBox="0 0 100 100"><path fill="#26890c" d="M50 8 30 34h10L22 54h12L12 76h76L66 54h12L60 34h10z"/><rect x="45" y="76" width="10" height="16" fill="#7a4a1d"/></svg>
+  <div class="logo">LEBANON<span>UNLOCKED!</span></div>
+  <p class="sub">The big Lebanon quiz • Le grand quiz du Liban</p>
+  <div class="card">
+    <input id="name" maxlength="15" placeholder="Nickname / Pseudo" autocomplete="off">
+    <button class="btn" id="go">Play! / Jouer !</button>
+    <small style="color:#888;font-weight:600">16 questions • 20 s each • faster = more points</small>
+  </div>
+</section>
+
+<!-- COUNTDOWN -->
+<section id="s-count" class="screen center"><p class="sub" id="cTitle"></p><div class="count" id="cNum">3</div></section>
+
+<!-- QUESTION -->
+<section id="s-q" class="screen">
+  <div class="top"><span class="pill" id="qNum">1 / 16</span><span class="pill" id="streak"></span><span class="pill" id="score">0</span></div>
+  <div class="qbox" id="qText"></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="mid"><div class="timer" id="timer">20</div><svg class="flag" viewBox="0 0 150 100"><rect width="150" height="100" fill="#fff"/><rect width="150" height="25" fill="#ed1c24"/><rect y="75" width="150" height="25" fill="#ed1c24"/><path fill="#00a651" d="M75 30 64 46h6L58 58h8L52 70h46L84 58h8L80 46h6z"/></svg></div>
+  <div class="answers" id="answers"></div>
+</section>
+
+<!-- END -->
+<section id="s-end" class="screen center">
+  <p class="sub">Final score • Score final</p>
+  <div class="big" id="final">0</div>
+  <p style="font-weight:800;font-size:20px" id="verdict"></p>
+  <div class="podium"><div style="height:60%">🥈</div><div style="height:100%" id="medal">🥇</div><div style="height:40%">🥉</div></div>
+  <div class="review" id="review"></div>
+  <button class="btn light" id="again">Play again / Rejouer</button>
+</section>
+
+<div id="feedback"><h2 id="fbTitle"></h2><div class="pts" id="fbPts"></div><p class="fact" id="fbFact"></p><p class="sub" id="fbStreak"></p></div>
+<button class="mute" id="mute" title="Sound">🔊</button>
+
+<script>
+const Q=[
+["What is the capital of Lebanon?","Quelle est la capitale du Liban ?",["Tripoli","Beirut / Beyrouth","Byblos","Sidon / Saïda"],1,"Beirut is the capital, on the Mediterranean coast. • Beyrouth est la capitale."],
+["Which sea borders Lebanon?","Quelle mer borde le Liban ?",["Black Sea / Mer Noire","Red Sea / Mer Rouge","Mediterranean / Méditerranée","North Sea / Mer du Nord"],2,"Lebanon lies on the eastern coast of the Mediterranean. • À l'est de la Méditerranée."],
+["Which country borders Lebanon?","Quel pays est voisin du Liban ?",["Syria / Syrie","Egypt / Égypte","Turkey / Turquie","Jordan / Jordanie"],0,"Lebanon's neighbours are Syria and Israel. • Voisins : la Syrie et Israël."],
+["Which tree is on the Lebanese flag?","Quel arbre figure sur le drapeau ?",["Cedar / Cèdre","Palm / Palmier","Olive / Olivier","Oak / Chêne"],0,"The cedar is Lebanon's national symbol. • Le cèdre est le symbole national."],
+["What colours are the flag's stripes?","De quelles couleurs sont les bandes du drapeau ?",["Red-white-red / Rouge-blanc-rouge","Blue-white-blue / Bleu-blanc-bleu","Green-white-green / Vert-blanc-vert","Red-green-red / Rouge-vert-rouge"],0,"Red, white and red, with a green cedar. • Rouge, blanc, rouge avec un cèdre vert."],
+["What is Lebanon's official currency?","Quelle est la monnaie officielle ?",["Euro","Lebanese pound / Livre libanaise","Yen","Dinar"],1,"The Lebanese pound. • La livre libanaise."],
+["What is dabke?","Qu'est-ce que la dabké ?",["A dance / Une danse","A dessert / Un dessert","A mountain / Une montagne","A boat / Un bateau"],0,"Dabke is a lively traditional group dance. • Une danse collective entraînante."],
+["Which dish is Lebanese?","Quel plat est libanais ?",["Sushi","Tabbouleh / Taboulé","Paella","Fish and chips"],1,"Tabbouleh is a fresh parsley salad. • Une salade fraîche au persil."],
+["Hummus is made from…","Le houmous est fait de…",["Chickpeas & tahini / Pois chiches et tahini","Lentils / Lentilles","Rice / Riz","Potatoes / Pommes de terre"],0,"Hummus is a chickpea and tahini dip. • Une purée de pois chiches et tahini."],
+["Manakish is often topped with…","La manakish est souvent garnie de…",["Chocolate / Chocolat","Honey / Miel","Za'atar","Banana / Banane"],2,"Manakish is a flatbread, often with za'atar. • Une galette, souvent au za'atar."],
+["Which language is official in Lebanon?","Quelle langue est officielle au Liban ?",["Arabic / Arabe","French / Français","English / Anglais","Spanish / Espagnol"],0,"Arabic is official; French and English are widely used too. • L'arabe est officiel."],
+["How do you say hello in Arabic?","Comment dit-on bonjour en arabe ?",["Hola","Ciao","Marhaba","Hallo"],2,"Marhaba! • Bonjour ! • Hello!"],
+["Baalbek is famous for its…","Baalbek est célèbre pour ses…",["Pyramids / Pyramides","Roman temples / Temples romains","Canals / Canaux","Castles / Châteaux"],1,"Baalbek has monumental Roman temples. • Des temples romains monumentaux."],
+["Byblos is linked to which ancient people?","Byblos est liée à quel peuple ancien ?",["Vikings","Aztecs / Aztèques","Phoenicians / Phéniciens","Mayans / Mayas"],2,"Byblos (Jbeil) is an ancient Phoenician port city. • Une ville côtière phénicienne."],
+["What can you explore at Jeita?","Que peut-on explorer à Jeita ?",["A glacier / Un glacier","Caves / Grottes","A volcano / Un volcan","A desert / Un désert"],1,"Jeita Grotto is a spectacular cave system. • Des grottes spectaculaires."],
+["The Cedars of God are…","Les Cèdres de Dieu sont…",["A lake / Un lac","A beach / Une plage","A castle / Un château","A cedar forest / Une forêt de cèdres"],3,"An iconic cedar forest. • Une forêt de cèdres emblématique."]
+];
+const SHAPES=['<svg viewBox="0 0 40 40"><path fill="#fff" d="M20 4 37 35H3z"/></svg>','<svg viewBox="0 0 40 40"><path fill="#fff" d="M20 2 38 20 20 38 2 20z"/></svg>','<svg viewBox="0 0 40 40"><circle fill="#fff" cx="20" cy="20" r="17"/></svg>','<svg viewBox="0 0 40 40"><rect fill="#fff" x="4" y="4" width="32" height="32"/></svg>'];
+const LIMIT=20;
+const $=id=>document.getElementById(id);
+let i=0,score=0,streak=0,results=[],tStart=0,tick=null,locked=false,muted=false,ac=null;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on')}
+function beep(f,d=.12,type='sine',v=.15){if(muted)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(ac.destination);const t=ac.currentTime;g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d)}catch(e){}}
+function tune(notes){notes.forEach((n,k)=>setTimeout(()=>beep(n,.18,'triangle'),k*120))}
+
+$('go').onclick=start;$('name').onkeydown=e=>{if(e.key==='Enter')start()};
+$('again').onclick=()=>show('s-start');
+$('mute').onclick=()=>{muted=!muted;$('mute').textContent=muted?'🔇':'🔊'};
+
+function start(){i=0;score=0;streak=0;results=[];countdown('Get ready! / Prêts ?',ask)}
+function countdown(title,cb){show('s-count');$('cTitle').textContent=title;let n=3;const draw=()=>{const el=$('cNum');el.textContent=n;el.style.animation='none';el.offsetHeight;el.style.animation='';beep(440+n*80)};draw();const iv=setInterval(()=>{n--;if(n===0){clearInterval(iv);cb()}else draw()},800)}
+
+function ask(){
+  const [en,fr,ans]=Q[i];locked=false;
+  $('qNum').textContent=(i+1)+' / '+Q.length;$('score').textContent=score;
+  $('streak').textContent=streak>1?'🔥 '+streak:'';$('streak').style.display=streak>1?'':'none';
+  $('qText').innerHTML=en+'<span class="fr">'+fr+'</span>';
+  $('answers').innerHTML=ans.map((a,k)=>`<button class="ans a${k}" data-k="${k}">${SHAPES[k]}${a}</button>`).join('');
+  $('answers').querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+  show('s-q');tStart=performance.now();
+  clearInterval(tick);tick=setInterval(update,100);update();
+}
+function update(){
+  const left=Math.max(0,LIMIT-(performance.now()-tStart)/1000),s=Math.ceil(left);
+  const t=$('timer');if(t.textContent!=s){t.textContent=s;if(s<=5&&s>0)beep(880,.06,'square',.06)}
+  t.classList.toggle('low',s<=5);$('bar').style.width=(left/LIMIT*100)+'%';
+  if(left<=0)answer(-1);
+}
+function answer(k){
+  if(locked)return;locked=true;clearInterval(tick);
+  const q=Q[i],ok=k===q[3],el=(performance.now()-tStart)/1000;
+  let pts=0;
+  if(ok){streak++;pts=Math.round(1000*(1-Math.min(el,LIMIT)/LIMIT/2));if(streak>=2)pts+=Math.min(streak-1,5)*100;score+=pts}else streak=0;
+  results.push({ok,k});
+  document.querySelectorAll('.ans').forEach((b,j)=>{b.disabled=true;if(j===q[3])b.classList.add('right');else{b.classList.add('dim');if(j===k)b.classList.add('wrong')}});
+  ok?tune([523,659,784,1047]):tune([392,311]);
+  setTimeout(()=>{
+    const f=$('feedback');f.className=ok?'ok on':'no on';
+    $('fbTitle').textContent=ok?'Correct! / Bravo !':(k<0?"Time's up! / Temps écoulé !":'Incorrect');
+    $('fbPts').textContent=ok?'+ '+pts:'Answer / Réponse : '+q[2][q[3]];
+    $('fbFact').textContent=q[4];
+    $('fbStreak').textContent=ok&&streak>1?'🔥 Answer streak: '+streak:'';
+    setTimeout(()=>{f.className='';i++;i<Q.length?ask():end()},3200);
+  },900);
+}
+function end(){
+  const c=results.filter(r=>r.ok).length;
+  show('s-end');$('final').textContent=score;
+  const pct=c/Q.length,name=$('name').value.trim()||'Player';
+  $('verdict').textContent=`${name}: ${c}/${Q.length} — `+(pct===1?'Perfect! Lebanon unlocked! 🇱🇧':pct>=.75?'Excellent! / Excellent !':pct>=.5?'Well done! / Bien joué !':'Keep exploring! / Continuez à explorer !');
+  $('medal').textContent=pct>=.75?'🥇':pct>=.5?'🥈':'🥉';
+  $('review').innerHTML=Q.map((q,j)=>`<div><b>${results[j].ok?'✅':'❌'}</b>${j+1}. ${q[0]} → <b>${q[2][q[3]]}</b></div>`).join('');
+  tune([523,659,784,659,784,1047]);
+}
+</script>
+</body>
+</html>
